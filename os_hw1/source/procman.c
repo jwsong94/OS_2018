@@ -36,6 +36,7 @@ struct _Task
   int            piped;
   int            pipe_a[2];
   int            pipe_b[2];
+  int            order;
 
   char           id[ID_MAX + 1];
   char           pipe_id[ID_MAX + 1];
@@ -76,6 +77,23 @@ check_valid_id (const char *str)
 
   len = strlen (str);
   if (len < ID_MIN || ID_MAX < len)
+    return -1;
+
+  for (i = 0; i < len; i++)
+    if (!(islower (str[i]) || isdigit (str[i])))
+      return -1;
+
+  return 0;
+}
+
+static int
+check_valid_order (const char *str)
+{
+  size_t len;
+  int    i;
+
+  len = strlen (str);
+  if (len < 1)
     return -1;
 
   for (i = 0; i < len; i++)
@@ -126,11 +144,19 @@ append_task (Task *task)
 
   if (!tasks)
     tasks = new_task;
+  else if(new_task->order < tasks->order){
+    new_task->next = tasks;
+    tasks = new_task;
+  }
   else
     {
       Task *t;
 
-      for (t = tasks; t->next != NULL; t = t->next) ;
+      for (t = tasks; t->next != NULL; t = t->next){
+        if(new_task->order < t->next->order) break;
+      }
+
+      new_task->next = t->next;
       t->next = new_task;
     }
 }
@@ -208,6 +234,22 @@ read_config (const char *filename)
           continue;
         }
 
+      /* order */
+      s = p + 1;
+      p = strchr (s, ':');
+      if (!p)
+        goto invalid_line;
+      *p = '\0';
+      strstrip (s);
+      if (!check_valid_order (s))
+        {
+          task.order = atoi(s);
+        }
+      else
+        {
+          task.order = 9999;
+        }
+
       /* pipe-id */
       s = p + 1;
       p = strchr (s, ':');
@@ -263,6 +305,8 @@ read_config (const char *filename)
              task.id, task.pipe_id, task.action, task.command);
 
       append_task (&task);
+      // FOR TESTING
+      // MSG ("id : %s\taction : %d\torder : %d\tpipe-id : %s\tcommand : %s\n", task.id, task.action, task.order, task.pipe_id, task.command);
       continue;
 
     invalid_line:
@@ -401,6 +445,9 @@ spawn_tasks (void)
 
   for (task = tasks; task != NULL && running; task = task->next)
     spawn_task (task);
+    // FOR TESTING
+    // MSG ("id : %s\taction : %d\torder : %d\tpipe-id : %s\tcommand : %s\n", task->id, task->action, task->order, task->pipe_id, task->command);
+
 }
 
 static void
