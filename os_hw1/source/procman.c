@@ -1,6 +1,7 @@
 /*
  * OS Assignment #1
  * Author : Jungwoo Song (20132138)
+ * Git : https://github.com/jwsong94/OS_2018
  */
 
 #include <unistd.h>
@@ -243,10 +244,12 @@ read_config (const char *filename)
       strstrip (s);
       if (!check_valid_order (s))
         {
+          // STRING TO INTEGER
           task.order = atoi(s);
         }
       else
         {
+          // SET MAX
           task.order = 9999;
         }
 
@@ -533,27 +536,6 @@ main (int    argc,
   
   if (fd < 0)
     return -1;
-
-  // /* SIGCHLD */
-  // sigemptyset (&sa.sa_mask);
-  // sa.sa_flags = 0;
-  // sa.sa_handler = wait_for_children;
-  // if (sigaction (SIGCHLD, &sa, NULL))
-  //   MSG ("failed to register signal handler for SIGINT\n");
-
-  // /* SIGINT */
-  // sigemptyset (&sa.sa_mask);
-  // sa.sa_flags = 0;
-  // sa.sa_handler = terminate_children;
-  // if (sigaction (SIGINT, &sa, NULL))
-  //   MSG ("failed to register signal handler for SIGINT\n");
-
-  // /* SIGTERM */
-  // sigemptyset (&sa.sa_mask);
-  // sa.sa_flags = 0;
-  // sa.sa_handler = terminate_children;
-  // if (sigaction (SIGTERM, &sa, NULL))
-  //   MSG ("failed to register signal handler for SIGINT\n");
 
   spawn_tasks ();
 
