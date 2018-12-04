@@ -77,7 +77,7 @@ void tsem_signal (tsem_t *sem)
 
   pthread_mutex_lock (&sem->mutex);
   sem->value++;
-  if (sem->value <= 0)
-    pthread_cond_signal (&sem->cond);
+  // if (sem->value <= 0)
+  //   pthread_cond_signal (&sem->cond);
   pthread_mutex_unlock (&sem->mutex);  
 }
